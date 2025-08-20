@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt'); // Importing bcrypt for password hashing and comparison.
-const jwt = require('jsonwebtoken'); // Importing jsonwebtoken for creating and verifying JWT tokens.
-const { JWT_SECRET, JWT_EXPIRY, ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } = require('../config/config'); // Importing configuration variables.
+const bcrypt = require('bcrypt'); 
+const jwt = require('jsonwebtoken'); 
+const { JWT_SECRET, JWT_EXPIRY, ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } = require('../config/config'); 
 const { findUserByEmail, addUser } = require('../models/userModel'); // Importing user model functions to interact with the database.
 const { getAccessToken } = require('../middleware/amadeus'); // Importing a middleware function to get an access token from Amadeus API.
 

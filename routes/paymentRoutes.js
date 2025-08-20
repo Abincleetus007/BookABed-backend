@@ -3,18 +3,20 @@ const Booking = require('../models/bookingModel');
 const router = express.Router();
 require('dotenv').config();
 
-// Initialize Stripe with the secret API key from environment variables
 const stripe = require('stripe')(process.env.STRIPE_KEY);
-
-console.log(process.env.STRIPE_KEY);
 
 // Route to create a Stripe Checkout session
 router.post('/create-checkout-session', async (req, res) => {
   const body = req.body;
 
-  // Create a new Booking document with details from the request
+  // Basic validation
+  if (!body.travelerPricings || !body.itineraries || !body.user) {
+    return res.status(400).json({ success: false, message: 'Invalid booking data' });
+  }
+
+  // Create a new Booking document
   const booking = new Booking({
-    totoalAmount: body.travelerPricings[0].price.total,
+    totalAmount: Number(body.travelerPricings[0].price.total), // fixed typo and ensure number
     from: body.itineraries[0].segments[0].departure.iataCode,
     to: body.itineraries[0].segments[0].arrival.iataCode,
     departureTime: body.itineraries[0].segments[0].departure.at,
@@ -25,34 +27,28 @@ router.post('/create-checkout-session', async (req, res) => {
   });
 
   try {
-    // Save the booking to the database
     await booking.save();
-    const price = booking.totoalAmount;
+    const price = booking.totalAmount;
 
-    // Create a Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'], // Accepts card payments
+      payment_method_types: ['card'],
       line_items: [{
         price_data: {
-          currency: 'inr', // Currency in which the payment is made
-          product_data: {
-            name: 'Flights' // Product name
-          },
-          unit_amount: price * 100, // Price in the smallest currency unit (e.g., cents for INR)
+          currency: 'inr',
+          product_data: { name: 'Flights' },
+          unit_amount: price * 100, // smallest currency unit
         },
-        quantity: 1 // Quantity of the item
+        quantity: 1
       }],
-      mode: 'payment', // One-time payment
-      success_url: 'https://book-a-bed.vercel.app/paymentSuccess', // Redirect URL after successful payment
-      cancel_url: 'https://book-a-bed.vercel.app/', // Redirect URL if payment is canceled
-      metadata: { bookingId: booking._id.toString() } // Store booking ID in metadata
+      mode: 'payment',
+      success_url: 'https://book-a-bed.vercel.app/paymentSuccess',
+      cancel_url: 'https://book-a-bed.vercel.app/',
+      metadata: { bookingId: booking._id.toString() }
     });
 
-    // Respond with the Stripe session ID
     res.json({ status: true, id: session.id });
   } catch (err) {
-    // Handle errors and respond with an error message
-    return res.status(401).json({ success: false, message: 'something went wrong', err });
+    return res.status(500).json({ success: false, message: 'Internal server error', error: err.message });
   }
 });
 

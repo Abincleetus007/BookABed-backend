@@ -5,5 +5,7 @@ module.exports = {
   REFRESH_TOKEN_SECRET: 'ThisIsTopsecret2',
   ACCESS_TOKEN_EXPIRATION: '10s',
   REFRESH_TOKEN_EXPIRATION: '1d',
-  MONGO_URI: 'mongodb+srv://abishkpk:VSTcVOvz3itaYgYN@cluster0.syyvlpb.mongodb.net/BookABed'
+MONGO_URI: 'mongodb+srv://abincleetus28:abincleetus28@cluster0.ten67.mongodb.net/BookABed?retryWrites=true&w=majority&appName=Cluster0'
+
+
 };
